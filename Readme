@@ -1,0 +1,28 @@
+core-network
+	•	Retrofit builder
+	•	OkHttp config
+	•	Logging interceptor
+	•	NetworkResult
+	•	BaseApiResponse
+
+core-database
+	•	BaseDatabase
+	•	Migration helper
+	•	TypeConverters
+
+core-datastore
+	•	BaseDataStore
+	•	SessionManager
+
+core-ui
+	•	BaseScaffold
+	•	LoadingComponent
+	•	ErrorView
+	•	Theme
+	•	Extensions
+
+core-common
+	•	DispatcherProvider
+	•	BaseViewModel
+	•	Result wrapper
+	•	Extensions
