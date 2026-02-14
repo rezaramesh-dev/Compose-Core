@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.ksp.plugin)
     alias(libs.plugins.hilt.plugin)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+    id("maven-publish")
 }
 
 android {
@@ -31,18 +32,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_22
         targetCompatibility = JavaVersion.VERSION_22
     }
-
-    afterEvaluate {
-        publishing {
-            publications {
-                create<MavenPublication>("release") {
-                    from(components["release"])
-
-                    groupId = "com.github.rezaramesh"
-                    artifactId = "core-network"
-                    version = "1.0.0"
-                }
-            }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
         }
     }
 }
@@ -63,4 +55,18 @@ dependencies {
 
     //Serialization
     implementation(libs.kotlinx.serialization.json)
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            groupId = "com.github.rezaramesh"
+            artifactId = "core-network"
+            version = "1.0.0"
+
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
 }
