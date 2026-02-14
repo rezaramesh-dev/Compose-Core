@@ -31,6 +31,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_22
         targetCompatibility = JavaVersion.VERSION_22
     }
+
+    afterEvaluate {
+        publishing {
+            publications {
+                create<MavenPublication>("release") {
+                    from(components["release"])
+
+                    groupId = "com.github.rezaramesh"
+                    artifactId = "core-network"
+                    version = "1.0.0"
+                }
+            }
+        }
+    }
 }
 
 dependencies {
