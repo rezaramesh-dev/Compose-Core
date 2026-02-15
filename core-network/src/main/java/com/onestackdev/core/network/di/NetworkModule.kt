@@ -26,12 +26,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @ConnectionSpecProvide
     fun provideConnectionSpec(): ConnectionSpec = ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
         .tlsVersions(TlsVersion.TLS_1_2)
         .build()
 
     @Provides
     @Singleton
+    @OkHttpClientProvide
     fun provideOkHttpClient(spec: ConnectionSpec): OkHttpClient = OkHttpClient.Builder().apply {
         connectTimeout(30, TimeUnit.SECONDS)
         readTimeout(30, TimeUnit.SECONDS)
@@ -41,10 +43,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    @GsonProvide
     fun provideGson(): Gson = GsonBuilder().create()
 
     @Provides
     @Singleton
+    @RetrofitProvide
     fun provideRetrofit(@NetworkUrls url: String, client: OkHttpClient, gson: Gson): Retrofit =
         Retrofit.Builder().baseUrl(url)
             .client(client)

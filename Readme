@@ -26,3 +26,8 @@ core-common
 	•	BaseViewModel
 	•	Result wrapper
 	•	Extensions
+
+	com.github.rezaramesh-dev.Compose-Core:core-security:0.0.2
+    com.github.rezaramesh-dev.Compose-Core:core-common:0.0.2
+    com.github.rezaramesh-dev.Compose-Core:core-network:0.0.2
+    com.github.rezaramesh-dev.Compose-Core:core-ui:0.0.2
