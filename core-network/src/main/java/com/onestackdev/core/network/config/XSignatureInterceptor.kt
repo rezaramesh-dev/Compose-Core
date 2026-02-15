@@ -1,7 +1,5 @@
 package com.onestackdev.core.network.config
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.util.Base64
@@ -12,13 +10,20 @@ import javax.inject.Inject
 import kotlin.random.Random
 
 class XSignatureInterceptor @Inject constructor(
-    private val config: SignatureConfig,
+    private val config: SignatureConfig?,
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        if (config == null) {
+            return chain.proceed(chain.request())
+        }
+
         val originalRequest = chain.request()
 
-        val xSignature = generateXSignature(config.apiKey, config.hmacKey)
+        val xSignature = generateXSignature(
+            config.apiKey,
+            config.hmacKey
+        )
 
         val newRequest = originalRequest.newBuilder()
             .addHeader("x-signature", xSignature)

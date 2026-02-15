@@ -8,10 +8,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.ConnectionSpec
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.TlsVersion
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.Optional
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -28,16 +31,29 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideLoggingInterceptor(isDebug: Boolean): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            level = if (isDebug)
+                HttpLoggingInterceptor.Level.BODY
+            else
+                HttpLoggingInterceptor.Level.NONE
+        }
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
         spec: ConnectionSpec,
-        xSignatureInterceptor: XSignatureInterceptor,
-    ): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(xSignatureInterceptor)
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .connectionSpecs(listOf(spec))
-        .build()
+        interceptors: Set<@JvmSuppressWildcards Interceptor>,
+    ): OkHttpClient {
+        return OkHttpClient.Builder().apply {
+            interceptors.forEach { addInterceptor(it) }
+            connectTimeout(30, TimeUnit.SECONDS)
+            readTimeout(30, TimeUnit.SECONDS)
+            writeTimeout(30, TimeUnit.SECONDS)
+            connectionSpecs(listOf(spec))
+        }.build()
+    }
 
     @Provides
     @Singleton
