@@ -2,19 +2,18 @@ package com.onestackdev.core.network.di
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.onestackdev.core.network.config.XSignatureInterceptor
+import com.onestackdev.core.network.retry.RetryInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import dagger.multibindings.IntoSet
 import okhttp3.ConnectionSpec
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.TlsVersion
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.Optional
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -28,17 +27,6 @@ object NetworkModule {
         ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
             .tlsVersions(TlsVersion.TLS_1_2)
             .build()
-
-    @Provides
-    @Singleton
-    fun provideLoggingInterceptor(isDebug: Boolean): HttpLoggingInterceptor {
-        return HttpLoggingInterceptor().apply {
-            level = if (isDebug)
-                HttpLoggingInterceptor.Level.BODY
-            else
-                HttpLoggingInterceptor.Level.NONE
-        }
-    }
 
     @Provides
     @Singleton
@@ -68,5 +56,12 @@ object NetworkModule {
         .client(client)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
+
+    @Provides
+    @Singleton
+    @IntoSet
+    fun provideRetryInterceptor(
+        retryInterceptor: RetryInterceptor
+    ): Interceptor = retryInterceptor
 
 }

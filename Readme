@@ -1,3 +1,275 @@
+📦 Core Network – Reusable Android Networking Library
+
+A modular, reusable, and production-ready network layer for Android projects built with:
+	•	✅ Hilt (Dependency Injection)
+	•	✅ Retrofit
+	•	✅ OkHttp
+	•	✅ Multi-binding Interceptors
+	•	✅ Optional Signature Interceptor
+	•	✅ Environment-based Base URL
+	•	✅ Debug-only Logging
+	•	✅ Fully Configurable & Extensible
+
+Designed for medium to large-scale Android projects using MVVM and Jetpack Compose.
+
+🚀 Features
+
+✔ Clean & Reusable Architecture
+
+No hard dependency on BuildConfig or app-specific values.
+
+✔ Optional Signature Interceptor
+
+Projects can enable or disable request signing without modifying the core.
+
+✔ Multi-binding Interceptor Support
+
+Any project can inject additional interceptors (Logging, Auth, Headers, etc.).
+
+✔ Debug-only Logging
+
+Logging level is controlled by the consuming project.
+
+✔ Environment-aware Base URL
+
+Supports Dev / Stage / Prod configurations.
+
+✔ Publish-ready
+
+Designed to be distributed via JitPack or Maven.
+----------------------------------------------------------------------------------------------------
+📥 Installation
+
+Add JitPack repository:
+
+dependencyResolutionManagement {
+    repositories {
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+
+Add dependency:
+
+implementation(com.github.rezaramesh-dev.Compose-Core:core-network:version)
+
+----------------------------------------------------------------------------------------------------
+
+🛠 Usage
+
+1️⃣ Provide Base URL (Required)
+
+In your app module:
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppNetworkConfigModule {
+
+    @Provides
+    @Singleton
+    fun provideBaseUrl(): String = BuildConfig.BASE_URL
+}
+
+2️⃣ Optional: Enable Signature Interceptor
+
+If your API requires request signing:
+@Module
+@InstallIn(SingletonComponent::class)
+object AppSignatureModule {
+
+    @Provides
+    @Singleton
+    fun provideSignatureConfig(): SignatureConfig =
+        object : SignatureConfig {
+            override val apiKey = BuildConfig.API_KEY
+            override val hmacKey = BuildConfig.HMAC_KEY
+        }
+}
+If you don’t provide this, signature will be automatically disabled.
+
+3️⃣ Optional: Add Logging Interceptor (Debug Only)
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppInterceptorsModule {
+
+    @Provides
+    @Singleton
+    @IntoSet
+    fun provideLoggingInterceptor(): Interceptor =
+        HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG)
+                HttpLoggingInterceptor.Level.BODY
+            else
+                HttpLoggingInterceptor.Level.NONE
+        }
+}
+
+4️⃣ Optional: Add Custom Headers
+
+class HeadersInterceptor(
+    private val headers: Map<String, String>
+) : Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val builder = chain.request().newBuilder()
+
+        headers.forEach { (key, value) ->
+            builder.addHeader(key, value)
+        }
+
+        return chain.proceed(builder.build())
+    }
+}
+
+Provide it:
+
+@Provides
+@IntoSet
+fun provideHeadersInterceptor(): Interceptor =
+    HeadersInterceptor(
+        mapOf(
+            "X-App-Version" to BuildConfig.VERSION_NAME,
+            "X-Platform" to "Android"
+        )
+    )
+
+5️⃣*Optional: Add Auth Token Interceptor*
+
+class AuthInterceptor @Inject constructor(
+    private val tokenProvider: TokenProvider
+) : Interceptor {
+
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val token = tokenProvider.getToken()
+
+        val request = chain.request().newBuilder()
+
+        token?.let {
+            request.addHeader("Authorization", "Bearer $it")
+        }
+
+        return chain.proceed(request.build())
+    }
+}
+
+@Binds
+@IntoSet
+abstract fun bindAuthInterceptor(
+    interceptor: AuthInterceptor
+): Interceptor
+
+6️⃣Optional: Provide RetryConfig
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppRetryModule {
+
+    @Provides
+    @Singleton
+    fun provideRetryConfig(): RetryConfig =
+        object : RetryConfig {
+            override val maxRetry: Int = 3
+            override val retryDelayMillis: Long = 1000L
+        }
+}
+----------------------------------------------------------------------------------------------------
+
+🔒 Security
+	•	Supports optional request signing (HMAC + AES)
+	•	Ready for certificate pinning
+	•	Designed for token-based authentication
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 core-network
 	•	Retrofit builder
 	•	OkHttp config
