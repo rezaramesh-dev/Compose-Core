@@ -174,28 +174,104 @@ object AppRetryModule {
 }
 ----------------------------------------------------------------------------------------------------
 
-🔒 Security
-	•	Supports optional request signing (HMAC + AES)
-	•	Ready for certificate pinning
-	•	Designed for token-based authentication
+📦 Core Security – Integration Guide for App Module
+
+This guide explains how to integrate core-security into your consumer app.
+
+core-security provides the encryption tools, keystore management, and security utilities. Your app module is responsible for actual storage implementation and dependency injection
+
+2️⃣ Provide DataStore (or any storage backend)
+
+SecureDataStoreStorage requires a DataStore instance:
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppStorageModule {
+
+    @Provides
+    @Singleton
+    fun provideDataStore(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences> {
+
+        return PreferenceDataStoreFactory.create(
+            produceFile = { context.preferencesDataStoreFile("secure_prefs") }
+        )
+    }
+}
+
+You can replace DataStore with EncryptedSharedPreferences or any other secure storage.
 
 
+3️⃣ Implement SecureStorage
 
+Create a class that implements the SecureStorage interface from core-security:
 
+class SecureDataStoreStorage @Inject constructor(
+    private val dataStore: DataStore<Preferences>,
+    private val encryptionManager: EncryptionManager
+) : SecureStorage {
 
+    override suspend fun save(key: String, value: String) {
+        dataStore.edit {
+            it[stringPreferencesKey(key)] = encryptionManager.encrypt(value)
+        }
+    }
 
+    override suspend fun get(key: String): String? {
+        val prefs = dataStore.data.first()
+        val encrypted = prefs[stringPreferencesKey(key)] ?: return null
+        return encryptionManager.decrypt(encrypted)
+    }
 
+    override suspend fun remove(key: String) {
+        dataStore.edit {
+            it.remove(stringPreferencesKey(key))
+        }
+    }
 
+    override suspend fun clear() {
+        dataStore.edit { it.clear() }
+    }
+}
 
+4️⃣ Bind SecureStorage in Hilt
 
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class SecureStorageBindingModule {
 
+    @Binds
+    @Singleton
+    abstract fun bindSecureStorage(
+        impl: SecureDataStoreStorage
+    ): SecureStorage
+}
 
+This allows any class in your app to inject SecureStorage:
 
+class AuthRepository @Inject constructor(
+    private val secureStorage: SecureStorage
+) {
 
+    suspend fun saveToken(token: String) {
+        secureStorage.save("access_token", token)
+    }
 
+    suspend fun getToken(): String? {
+        return secureStorage.get("access_token")
+    }
+}
 
+6️⃣ Optional: Token Encryption & Storage
+Use EncryptionManager for encrypting tokens, API keys, or any sensitive data:
 
+val encryptedToken = encryptionManager.encrypt("my_token")
+secureStorage.save("access_token", encryptedToken)
 
+Decrypt when needed:
+
+val token = secureStorage.get("access_token")?.let { encryptionManager.decrypt(it) }
 
 
 
