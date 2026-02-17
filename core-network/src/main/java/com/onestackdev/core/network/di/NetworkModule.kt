@@ -3,6 +3,7 @@ package com.onestackdev.core.network.di
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.onestackdev.core.network.retry.RetryInterceptor
+import com.onestackdev.core.network.ssl.CertificatePinnerFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,9 +33,13 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(
         spec: ConnectionSpec,
+        certificatePinnerFactory: CertificatePinnerFactory,
         interceptors: Set<@JvmSuppressWildcards Interceptor>,
     ): OkHttpClient {
         return OkHttpClient.Builder().apply {
+            certificatePinnerFactory.create()?.let {
+
+            }
             interceptors.forEach { addInterceptor(it) }
             connectTimeout(30, TimeUnit.SECONDS)
             readTimeout(30, TimeUnit.SECONDS)
