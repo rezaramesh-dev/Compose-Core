@@ -64,7 +64,7 @@ publishing {
     publications {
         register<MavenPublication>("release") {
             groupId = "com.github.rezaramesh"
-            artifactId = "core-ui"
+            artifactId = "core-storage"
             version = "1.0.0"
 
             afterEvaluate {
