@@ -40,9 +40,19 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.core.ktx)
+
     //Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    implementation(libs.viewmodel.ktx)
+    implementation(libs.lifecycle.ktx)
+
+    implementation(libs.kotlinx.coroutines)
+
+    //Retrofit
+    implementation(libs.retrofit)
 }
 
 publishing {

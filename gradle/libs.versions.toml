@@ -2,10 +2,10 @@
 agp = "9.0.1"
 
 kotlin = "2.3.10"
-ksp = "2.3.5"
+ksp = "2.3.6"
 
 coreKtx = "1.17.0"
-viewmodelCompose = "2.10.0"
+lifecycleKtx = "2.10.0"
 coroutines = "1.10.2"
 hilt = "2.59.1"
 hiltCompose = "1.3.0"
@@ -22,8 +22,8 @@ coil = "3.3.0"
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
-lifecycle-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "viewmodelCompose" }
-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "viewmodelCompose" }
+viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleKtx" }
+lifecycle-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleKtx" }
 
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 
